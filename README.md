@@ -19,6 +19,8 @@ Claude Codeを活用した、複数のAIエージェントによる意思決定�
 ```text
 AI-Organization/
 ├── README.md
+├── start-claude.bat       # Windows用の起動ファイル
+├── start-claude.command   # Mac用の起動ファイル
 └── .claude/
     ├── agents/
     │   ├── realist.md
@@ -57,6 +59,9 @@ AI組織の構築、エージェントの追加、
 ## 5. 基本的な使い方
 
 Claude Codeを本リポジトリのルートで起動する。
+start-claude.bat（Windows）または start-claude.command（Mac）を
+ダブルクリックでも起動できる。
+Macで初回に動かない場合は、chmod +x start-claude.command を実行する。
 
 - `/multi-perspective`：複数の視点から課題を分析する
 - `/setup-ai-team`：AI組織の構築・改善を支援する
