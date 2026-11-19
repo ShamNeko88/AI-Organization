@@ -4,6 +4,12 @@ AI組織の役割、判断基準、運用方法を変更した際は、変更内
 
 ## 2026-11-19
 
+作業ログの保存形式を .md から .txt に変更
+
+- 内容：保存先を logs/yyyymmdd_workLog.txt にした（CLAUDE.md、docs/worklog.md を更新）。
+- 理由：記録は1行のテキストで、Markdownの記法を使わないため。拡張子と中身を一致させ、Windowsでメモ帳などで開けるようにするため。
+- 補足：config/worklog.json の `True` を `true` に修正（JSONとして正しくなるように）。
+
 作業ログの設定ファイル化
 
 - 内容：依頼ごとの作業ログを、config/worklog.json の `work_log_enabled` で設定できるようにした。
