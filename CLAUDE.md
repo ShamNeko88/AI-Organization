@@ -31,7 +31,7 @@
 - 結論、使用したエージェント、根拠、参考サイトなどを載せる
 
 ## 6. 作業ログ
-- 依頼完了時に `config/worklog.json` を読み、`work_log_enabled` が true のときだけ記録する（既定は false）。
+- 依頼完了時に `config/worklog.json` を読み、`work_log_enabled` が true のときだけ記録する。
 - 有効時は、依頼への回答が完了するたびに、logs/yyyymmdd_workLog.md に1行追記する。質問への回答のみの場合も含む。
   - 形式:yyyy-mm-dd HH:MM 概要(40文字程度)
   - ファイルや日付のフォルダがなければ作成する
