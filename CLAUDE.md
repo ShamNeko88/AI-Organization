@@ -29,3 +29,10 @@
 - 成果物はoutputs/カテゴリ/yyyymmdd_topic/topic_summary.mdの形で出力する。
   - カテゴリ:議論系はdiscussion、調査系はresearch
 - 結論、使用したエージェント、根拠、参考サイトなどを載せる
+
+## 6. 作業ログ
+- 依頼1件の作業が完了するたびに、logs/yyyymmdd_workLog.md に1行追記する。
+  - 形式:yyyy-mm-dd HH:MM 概要(40文字程度)
+  - ファイルや日付のフォルダがなければ作成する
+- 質問への回答のみで、ファイル変更や調査を伴わないやり取りは記録しない。
+- logs/ はGit管理外。

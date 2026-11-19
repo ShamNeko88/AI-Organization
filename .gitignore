@@ -8,3 +8,6 @@ outputs/mentor/*
 outputs/mentor/*/*
 !outputs/mentor/*/.gitkeep
 settings.local.json
+
+# 作業ログはGit管理外
+logs/
