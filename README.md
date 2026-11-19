@@ -6,6 +6,10 @@ Claude Codeを使い、このプロジェクト内で様々な課題を解決す
 課題に応じてエージェントとスキルを使い分ける。必要に応じて追加し、改善していく。
 GitHubで構成を管理し、別の環境でも再利用する。
 
+## 前提
+
+Claude Code が必要。日本語のみ対応。詳細は [docs/setup.md](docs/setup.md)。MITライセンス。
+
 ## 基本的な使い方
 
 Claude Codeを本リポジトリのルートで起動する。
@@ -46,6 +50,7 @@ Macで初回に動かない場合は、chmod +x start-claude.command を実行�
 
 ## 詳細（docs/）
 
+- [docs/setup.md](docs/setup.md)：前提条件、言語、モデル設定の注意点
 - [docs/agents.md](docs/agents.md)：エージェントの役割と判断基準、モデル設定、フォルダ構成、命名ルール、運用方針
 - [docs/skills.md](docs/skills.md)：各スキルの使い方
 - [docs/mentor.md](docs/mentor.md)：メンターの使い方
