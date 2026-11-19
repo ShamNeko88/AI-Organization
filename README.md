@@ -47,6 +47,7 @@ Macで初回に動かない場合は、chmod +x start-claude.command を実行�
 - メンター使用中は、/clear の前に /mentor-note で保存する（保存していない内容は消える）。
 - 長く続けたと感じたら /context で使用量を確認する。
 - エージェントやスキルを追加したときは、この README の一覧と docs/ を更新する。
+- 作業ログの設定は config/worklog.json の `work_log_enabled` にある（詳細は docs/worklog.md）。
 
 ## 詳細（docs/）
 
@@ -54,4 +55,5 @@ Macで初回に動かない場合は、chmod +x start-claude.command を実行�
 - [docs/agents.md](docs/agents.md)：エージェントの役割と判断基準、モデル設定、フォルダ構成、命名ルール、運用方針
 - [docs/skills.md](docs/skills.md)：各スキルの使い方
 - [docs/mentor.md](docs/mentor.md)：メンターの使い方
+- [docs/worklog.md](docs/worklog.md)：作業ログの設定と記録形式
 - [docs/changelog.md](docs/changelog.md)：改善履歴
