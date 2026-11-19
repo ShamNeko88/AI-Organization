@@ -21,7 +21,7 @@
 
 ## 記録先と形式
 
-- 保存先：`logs/yyyymmdd_workLog.md`（日付ごとに1ファイル。`logs/` はGit管理外）
+- 保存先：`logs/yyyymmdd_workLog.txt`（日付ごとに1ファイル。`logs/` はGit管理外）
 - 形式：`yyyy-mm-dd HH:MM 概要(40文字程度)`
 - ファイルや日付フォルダがなければ作成する
 - 質問への回答のみの場合も記録対象
