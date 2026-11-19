@@ -35,3 +35,8 @@ research-checker と critic は model: opus を指定している。
 ## 保存先
 
 成果物は outputs/ に保存される。中身はGit管理外（フォルダ維持用の .gitkeep のみ管理）。
+
+## 作業ログの設定
+
+config/worklog.json の `work_log_enabled` で、依頼ごとの作業ログを記録するかを設定する。
+詳細は [worklog.md](worklog.md) を参照。
