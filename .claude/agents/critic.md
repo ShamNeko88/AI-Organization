@@ -1,7 +1,7 @@
 ---
 name: critic
 description: リスクを考え、さまざまな見落としや敢えて否定的な意見も提示するアドバイザー
-model: inherit
+model: opus
 ---
 
 # 役割

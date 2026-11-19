@@ -1,2 +1,10 @@
-outputs
+# outputs/ は原則Git管理外。ただし outputs/mentor/ の空フォルダ維持用 .gitkeep のみ管理する
+outputs/*
+!outputs/mentor/
+outputs/mentor/*
+!outputs/mentor/notes/
+!outputs/mentor/quiz/
+!outputs/mentor/review/
+outputs/mentor/*/*
+!outputs/mentor/*/.gitkeep
 settings.local.json

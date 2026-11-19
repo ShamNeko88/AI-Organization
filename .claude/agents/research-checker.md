@@ -1,7 +1,7 @@
 ---
 name: research-checker
 description: 収集された情報の出典・日付・整合性を確認し、事実と推測を区別して信頼度を評価する裏取り担当。調査結果の検証が必要なときに使用する。
-model: inherit
+model: opus
 ---
 
 # 役割
