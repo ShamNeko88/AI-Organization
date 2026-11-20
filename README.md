@@ -46,6 +46,7 @@ Macで初回に動かない場合は、chmod +x start-claude.command を実行�
 - 話題が変わったら /clear する（文脈が混ざると精度が落ちる）。
 - メンター使用中は、/clear の前に /mentor-note で保存する（保存していない内容は消える）。
 - 長く続けたと感じたら /context で使用量を確認する。
+- /mentor-quiz を使うときは、/config で「Prompt suggestions」をOFFにする（入力欄のグレー文字に答えが出るのを防ぐため）。終わったらONに戻す。常時OFFにする場合は、~/.claude/settings.json に `"promptSuggestionEnabled": false` を書く。
 - エージェントやスキルを追加したときは、この README の一覧と docs/ を更新する。
 - 作業ログの設定は config/worklog.json の `work_log_enabled` にある（詳細は docs/worklog.md）。
 
