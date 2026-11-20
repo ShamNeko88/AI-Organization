@@ -29,6 +29,10 @@
 - 成果物はoutputs/カテゴリ/yyyymmdd_topic/topic_summary.mdの形で出力する。
   - カテゴリ:議論系はdiscussion、調査系はresearch
 - 結論、使用したエージェント、根拠、参考サイトなどを載せる
+- 調査系の topic_summary.md は、結論の直前に「## 見出し一覧」を置く。
+  - 各項目を1行タイトルの通し番号付きリストで書く（例:「1. 項目名」）。
+  - 未確認・続報の項目も同じ連番に含める。
+  - 本文の項目見出し（###）はそのまま残す。
 
 ## 6. 作業ログ
 - 依頼完了時に `config/worklog.json` を読み、`work_log_enabled` が true のときだけ記録する。
