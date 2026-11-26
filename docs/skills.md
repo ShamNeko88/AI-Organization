@@ -66,5 +66,5 @@ research-collector で収集し、research-checker で出典・日付・整合�
 
 ## mentor 系スキル
 
-/mentor、/mentor-note、/mentor-quiz、/mentor-review、/mentor-organizer。
+/mentor、/mentor-note、/mentor-quiz、/mentor-question、/mentor-review、/mentor-organizer。
 使い方は [mentor.md](mentor.md) を参照。

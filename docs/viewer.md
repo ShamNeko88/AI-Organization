@@ -18,6 +18,7 @@ outputs/ の成果物（Markdown）と logs/ の作業ログを、ブラウザ�
 
 - outputs/ 配下の .md ファイル（議論、調査、メンターの記録）
 - logs/ 配下の作業ログ（yyyymmdd_workLog.txt）
+- 「一問一答」タブ：outputs/mentor/quiz/questions/ の問題集を、1問ずつ解く形式で表示する（詳細は mentor.md）
 
 ## 構成
 
