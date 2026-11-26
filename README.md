@@ -22,6 +22,12 @@ Macで初回に動かない場合は、chmod +x start-claude.command を実行�
 - /mentor-note：相談内容をノートに保存する
 - /setup-ai-team：AI組織の構築・改善を支援する
 
+## ビューア
+
+成果物（outputs/）と作業ログ（logs/）をブラウザで閲覧できる。
+start-viewer.bat（Windows）または start-viewer.command（Mac）をダブルクリックで起動する。Python 3 が必要。
+詳細は [docs/viewer.md](docs/viewer.md)。
+
 ## エージェント一覧
 
 - realist：現実主義者。実現可能性、費用対効果、リスク
@@ -57,4 +63,5 @@ Macで初回に動かない場合は、chmod +x start-claude.command を実行�
 - [docs/skills.md](docs/skills.md)：各スキルの使い方
 - [docs/mentor.md](docs/mentor.md)：メンターの使い方
 - [docs/worklog.md](docs/worklog.md)：作業ログの設定と記録形式
+- [docs/viewer.md](docs/viewer.md)：ローカル閲覧ビューアの使い方
 - [docs/changelog.md](docs/changelog.md)：改善履歴

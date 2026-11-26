@@ -7,6 +7,7 @@
 - Claude Code がインストールされ、ログイン済みであること（有効な契約またはAPI利用が必要）。
 - Git（リポジトリを取得する場合）。
 - Web検索が使えること。research-collector と /research-it-news が情報収集に使う。
+- Python 3（ビューアを使う場合のみ）。詳細は [viewer.md](viewer.md)。
 
 ## 取得と起動
 

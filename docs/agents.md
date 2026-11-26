@@ -54,6 +54,9 @@ AI-Organization/
 ├── CLAUDE.md              # 共通ルール
 ├── start-claude.bat       # Windows用の起動ファイル
 ├── start-claude.command   # Mac用の起動ファイル
+├── start-viewer.bat       # ビューアの起動ファイル（Windows）
+├── start-viewer.command   # ビューアの起動ファイル（Mac）
+├── apps/viewer/           # ローカル閲覧ビューア（server.py / index.html）
 ├── docs/                  # 詳細ドキュメント
 ├── .claude/
 │   ├── agents/            # エージェント（realist, idealist, critic, research-collector, research-checker）
