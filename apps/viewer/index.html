@@ -55,6 +55,7 @@
     cursor: pointer;
   }
   .tabs button.active { border-color: var(--accent); color: var(--accent); font-weight: bold; }
+  .toolsw { padding: 8px 12px; display: flex; gap: 8px; border-bottom: 1px solid var(--border); }
   main { flex: 1; display: flex; min-height: 0; }
   aside {
     width: 300px;
@@ -135,14 +136,14 @@
 <header>
   <h1>AI-Organization ビューア</h1>
   <nav class="tabs">
-    <button id="tab-notes" class="active">ドキュメント</button>
-    <button id="tab-quiz">一問一答</button>
-    <button id="tab-worklog">作業ログ</button>
+    <button id="tab-notes" class="active">成果物</button>
+    <button id="tab-tools">ツール</button>
+    <button id="tab-docs">ヘルプ</button>
   </nav>
 </header>
 <main>
   <aside>
-    <input id="search" type="search" placeholder="ファイル名で絞り込み">
+    <input id="search" type="search" placeholder="ファイル名・本文で検索">
     <div id="list"></div>
   </aside>
   <section id="view"><article id="content"></article></section>
@@ -249,7 +250,16 @@
   let notes = [];
   let currentPath = null;
   let mode = "notes";
+  const TOOLS = [["quiz", "一問一答"], ["worklog", "作業ログ"]];
+  const isTool = (m) => TOOLS.some(([id]) => id === m);
+  let lastTool = "quiz";  // ツールタブを開いたときに表示する機能（初期は一問一答）
   const QUESTION_DIR = "mentor/quiz/questions/";
+  // 本文検索の結果（検索語 q に対するもの。path → 一致箇所の抜粋）
+  let hits = { q: "", map: new Map() };
+  let searchSeq = 0;
+  let searchTimer = null;
+  let docs = [];
+  let currentDoc = null;
   let currentQuiz = null;
   let questions = [];
   let qIndex = 0;
@@ -288,8 +298,41 @@
   }
 
   // 検索語に一致するファイルを、子孫に持つかどうか
+  // n は { title, path } を持つ項目（成果物・ヘルプ共通）
   function matches(n, q) {
-    return !q || (n.title + " " + n.path).toLowerCase().includes(q);
+    if (!q) return true;
+    if (hits.q === q && hits.map.has(n.path)) return true;
+    return (n.title + " " + n.path).toLowerCase().includes(q);
+  }
+  function snippetOf(path, q) {
+    return hits.q === q ? (hits.map.get(path) || "") : "";
+  }
+
+  // 一覧の1項目を作る（title の下に、小さい文字で meta と、あれば抜粋を出す）
+  function makeItem(title, metas, active, onClick) {
+    const item = document.createElement("div");
+    item.className = "item" + (active ? " active" : "");
+    item.innerHTML = escapeHtml(title) +
+      metas.filter(Boolean).map(m => `<small>${escapeHtml(m)}</small>`).join("");
+    item.addEventListener("click", onClick);
+    return item;
+  }
+
+  // 検索語が変わったら、サーバーに本文検索を依頼して一覧を更新する
+  function onSearchInput() {
+    renderList();
+    clearTimeout(searchTimer);
+    const q = $("#search").value.trim().toLowerCase();
+    if (!q) return;
+    searchTimer = setTimeout(async () => {
+      const seq = ++searchSeq;
+      try {
+        const data = await getJson(`/api/search?q=${encodeURIComponent(q)}`);
+        if (seq !== searchSeq) return;
+        hits = { q, map: new Map(data.map(x => [x.path, x.snippet])) };
+        renderList();
+      } catch (e) { /* 検索に失敗した場合は、タイトル・パスの絞り込みのみ */ }
+    }, 250);
   }
   function hasMatch(node, q) {
     return node.files.some(f => matches(f, q)) ||
@@ -322,13 +365,9 @@
       .filter(f => matches(f, q))
       .sort((a, b) => a.name.localeCompare(b.name, "ja"));
     for (const n of files) {
-      const item = document.createElement("div");
-      item.className = "item" + (n.path === currentPath ? " active" : "");
-      const date = dateOf(n.path);
-      const meta = [date, n.name].filter(Boolean).join(" · ");
-      item.innerHTML = `${escapeHtml(n.title)}<small>${escapeHtml(meta)}</small>`;
-      item.addEventListener("click", () => openNote(n.path));
-      container.appendChild(item);
+      const meta = [dateOf(n.path), n.name].filter(Boolean).join(" · ");
+      container.appendChild(makeItem(n.title, [meta, snippetOf(n.path, q)],
+        n.path === currentPath, () => openNote(n.path)));
     }
   }
 
@@ -337,27 +376,52 @@
     const list = $("#list");
     list.innerHTML = "";
 
+    if (isTool(mode)) {
+      // ツールタブ：一問一答・作業ログの切り替えを一覧の先頭に出す
+      const sw = document.createElement("div");
+      sw.className = "tabs toolsw";
+      for (const [id, label] of TOOLS) {
+        const b = document.createElement("button");
+        b.textContent = label;
+        if (mode === id) b.className = "active";
+        b.addEventListener("click", () => setMode(id));
+        sw.appendChild(b);
+      }
+      list.appendChild(sw);
+    }
+
     if (mode === "quiz") {
       $("#search").style.display = "none";
       const sets = notes.filter(n => n.path.startsWith(QUESTION_DIR))
         .sort((a, b) => b.name.localeCompare(a.name, "ja"));
       if (sets.length === 0) {
-        list.innerHTML = '<div class="muted" style="padding:12px">問題集がありません。/mentor-question で作成してください。</div>';
+        list.insertAdjacentHTML("beforeend", '<div class="muted" style="padding:12px">問題集がありません。/mentor-question で作成してください。</div>');
         return;
       }
       for (const n of sets) {
-        const item = document.createElement("div");
-        item.className = "item" + (n.path === currentQuiz ? " active" : "");
-        item.innerHTML = `${escapeHtml(n.title)}<small>${escapeHtml([dateOf(n.path), n.name].filter(Boolean).join(" · "))}</small>`;
-        item.addEventListener("click", () => openQuiz(n.path));
-        list.appendChild(item);
+        list.appendChild(makeItem(n.title, [[dateOf(n.path), n.name].filter(Boolean).join(" · ")],
+          n.path === currentQuiz, () => openQuiz(n.path)));
+      }
+      return;
+    }
+
+    if (mode === "docs") {
+      $("#search").style.display = "";
+      const shown = docs.filter(d => matches(d, q));
+      if (shown.length === 0) {
+        list.innerHTML = '<div class="muted" style="padding:12px">該当するファイルがありません。</div>';
+        return;
+      }
+      for (const d of shown) {
+        list.appendChild(makeItem(d.title, [d.path, snippetOf(d.path, q)],
+          d.path === currentDoc, () => openDoc(d.path)));
       }
       return;
     }
 
     if (mode === "worklog") {
       $("#search").style.display = "none";
-      list.innerHTML = '<div class="muted" style="padding:12px">右側に作業ログを表示しています。</div>';
+      list.insertAdjacentHTML("beforeend", '<div class="muted" style="padding:12px">右側に作業ログを表示しています。</div>');
       return;
     }
     $("#search").style.display = "";
@@ -383,6 +447,18 @@
       content.innerHTML = renderMarkdown(data.content);
     } catch (e) {
       content.innerHTML = `<p class="muted">読み込みに失敗しました: ${escapeHtml(e.message)}</p>`;
+    }
+    $("#view").scrollTop = 0;
+  }
+
+  async function openDoc(path) {
+    currentDoc = path;
+    renderList();
+    try {
+      const data = await getJson(`/api/doc?path=${encodeURIComponent(path)}`);
+      $("#content").innerHTML = renderMarkdown(data.content);
+    } catch (e) {
+      $("#content").innerHTML = `<p class="muted">読み込みに失敗しました: ${escapeHtml(e.message)}</p>`;
     }
     $("#view").scrollTop = 0;
   }
@@ -492,11 +568,15 @@
 
   function setMode(next) {
     mode = next;
+    if (isTool(next)) lastTool = next;
     $("#tab-notes").classList.toggle("active", next === "notes");
-    $("#tab-quiz").classList.toggle("active", next === "quiz");
-    $("#tab-worklog").classList.toggle("active", next === "worklog");
+    $("#tab-tools").classList.toggle("active", isTool(next));
+    $("#tab-docs").classList.toggle("active", next === "docs");
     renderList();
-    if (next === "quiz") {
+    if (next === "docs") {
+      if (currentDoc) openDoc(currentDoc);
+      else $("#content").innerHTML = '<p class="muted">左の一覧からファイルを選んでください。</p>';
+    } else if (next === "quiz") {
       if (currentQuiz) openQuiz(currentQuiz);
       else $("#content").innerHTML = '<p class="muted">左の一覧から問題集を選んでください。</p>';
     } else if (next === "worklog") {
@@ -510,10 +590,12 @@
   }
 
   // ---- 初期化 ----
-  $("#search").addEventListener("input", renderList);
+  $("#search").addEventListener("input", onSearchInput);
   $("#tab-notes").addEventListener("click", () => setMode("notes"));
-  $("#tab-quiz").addEventListener("click", () => setMode("quiz"));
-  $("#tab-worklog").addEventListener("click", () => setMode("worklog"));
+  $("#tab-tools").addEventListener("click", () => setMode(lastTool));
+  $("#tab-docs").addEventListener("click", () => setMode("docs"));
+
+  getJson("/api/docs").then(data => { docs = data; if (mode === "docs") renderList(); }).catch(() => {});
 
   getJson("/api/notes")
     .then(data => { notes = data; renderList(); })
