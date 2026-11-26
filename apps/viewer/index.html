@@ -124,6 +124,39 @@
   }
   .qnav button:hover { border-color: var(--accent); color: var(--accent); }
   .qnav .count { color: var(--muted); font-size: 14px; }
+  .qnav button.on { border-color: var(--accent); color: var(--accent); font-weight: bold; }
+
+  /* IT・セキュリティニュースの記事風表示 */
+  #view.wide article { max-width: 1120px; }
+  .narticle { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 32px; margin-top: 8px; }
+  .nmain { min-width: 0; }
+  .ntoc { position: sticky; top: 0; align-self: start; max-height: calc(100vh - 120px); overflow-y: auto;
+          font-size: 13px; border: 1px solid var(--border); background: var(--panel); border-radius: 8px; padding: 12px 14px; }
+  .ntoc-title { font-weight: bold; color: var(--muted); margin-bottom: 6px; }
+  .ntoc ol { margin: 0; padding-left: 18px; }
+  .ntoc li { margin: 4px 0; line-height: 1.5; }
+  #view .ntoc a { color: var(--text); text-decoration: none; }
+  #view .ntoc a:hover { color: var(--accent); }
+  #news-open { margin-left: 16px; }
+  .nitem { margin-top: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border); scroll-margin-top: 12px; }
+  .nitem > summary { cursor: pointer; list-style: none; }
+  .nitem > summary::-webkit-details-marker { display: none; }
+  #view .nitem h2.ntitle { margin: 0; padding: 0; border: none; font-size: 18px; }
+  .nitem h2.ntitle::before { content: "▸ "; color: var(--muted); }
+  .nitem[open] h2.ntitle::before { content: "▾ "; }
+  .nitem-body { margin-top: 6px; }
+  .ntags { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 2px; }
+  .tag { font-size: 12px; line-height: 1.7; padding: 0 9px; border-radius: 4px; background: var(--code-bg); color: var(--muted); }
+  .tag.ok { color: var(--accent); }
+  .sev-h { --sev: #c62828; }
+  .sev-m { --sev: #b26a00; }
+  .sev-l { --sev: #2e7d32; }
+  .tag[class*="sev-"] { color: #fff; background: var(--sev); }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; background: var(--sev, transparent); }
+  @media (max-width: 1100px) {
+    .narticle { grid-template-columns: minmax(0, 1fr); }
+    .ntoc { position: static; order: -1; max-height: 180px; }
+  }
 
   @media (max-width: 700px) {
     main { flex-direction: column; }
@@ -163,13 +196,15 @@
 
   // 行内記法（先にエスケープ済みの文字列に対して適用）
   function inline(s) {
-    const codes = [];
-    s = s.replace(/`([^`]+)`/g, (_, c) => { codes.push(c); return `\u0000${codes.length - 1}\u0000`; });
+    const stash = [];
+    const keep = (html) => { stash.push(html); return `\u0000${stash.length - 1}\u0000`; };
+    const link = (u, t) => keep(`<a href="${u}" target="_blank" rel="noopener noreferrer">${t}</a>`);
+    s = s.replace(/`([^`]+)`/g, (_, c) => keep(`<code>${c}</code>`));
+    s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (_, t, u) => link(u, t));
+    // 書式なしの URL もリンクにする（空白や全角の句読点・括弧で終わる）
+    s = s.replace(/https?:\/\/[^\s<>"'\]、。，）（()「」]+/g, (u) => link(u, u));
     s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
-    s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
-      '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-    s = s.replace(/\u0000(\d+)\u0000/g, (_, i) => `<code>${codes[Number(i)]}</code>`);
-    return s;
+    return s.replace(/\u0000(\d+)\u0000/g, (_, i) => stash[Number(i)]);
   }
 
   // 簡易Markdown描画（見出し・箇条書き・番号付き・引用・コード・水平線・段落）
@@ -434,6 +469,130 @@
     renderNode(tree, q, list);
   }
 
+  // ---- IT・セキュリティニュース（記事風の表示） ----
+  // 成果物の形式（research-it-news の SKILL.md）に沿って md を読み取る
+  const isNewsPath = (p) => /_it-news\/topic_summary\.md$/.test(p);
+  const SEV_RANK = { "高": 0, "中": 1, "低": 2 };
+  const SEV_CLASS = { "高": "h", "中": "m", "低": "l" };
+  let newsView = "card";   // "card" | "raw"
+  let newsOpen = new Set();   // 展開中の項目（index）
+  let news = null;
+
+  function parseNews(md) {
+    const head = [], tail = [], items = [];
+    let area = "head", status = "", cur = null;
+    for (const line of md.replace(/\r\n/g, "\n").split("\n")) {
+      const h2 = line.match(/^##\s+(.*)$/);
+      if (h2) {
+        cur = null;
+        if (area === "skip") area = "head";
+        if (/^見出し一覧/.test(h2[1])) { area = "skip"; continue; }
+        if (/^確認済み/.test(h2[1])) { area = "items"; status = "confirmed"; continue; }
+        if (/^未確認/.test(h2[1])) { area = "items"; status = "unconfirmed"; continue; }
+        if (area === "items") area = "tail";
+      }
+      const h3 = area === "items" && line.match(/^###\s+(.*)$/);
+      if (h3) {
+        cur = { title: h3[1].replace(/^\d+\.\s*/, ""), status, lines: [], index: items.length };
+        items.push(cur);
+      } else if (area === "items") {
+        if (cur) cur.lines.push(line); else if (line.trim()) head.push(line);
+      } else if (area !== "skip") {
+        (area === "head" ? head : tail).push(line);
+      }
+    }
+    for (const it of items) {
+      const body = [];
+      for (const l of it.lines) {
+        const m = l.match(/^-\s*(重要度|カテゴリ)\s*[:：]\s*(.+?)\s*$/);
+        if (!m) body.push(l);
+        else if (m[1] === "重要度") it.sev = m[2].charAt(0);
+        else it.cat = m[2];
+      }
+      if (!(it.sev in SEV_RANK)) it.sev = "";
+      it.cat = it.cat || "";
+      it.body = body.join("\n");
+      const dates = it.lines.join("\n").match(/\d{4}-\d{2}-\d{2}/g);
+      it.date = dates ? dates.sort().pop() : "";
+    }
+    return { head: head.join("\n"), tail: tail.join("\n"), items, md };
+  }
+
+  // 記事の1項目。見出しとタグは常に見え、本文は展開・縮小できる
+  function newsItemHtml(it) {
+    const tags = [];
+    if (it.sev) tags.push(`<span class="tag sev-${SEV_CLASS[it.sev]}">重要度 ${it.sev}</span>`);
+    if (it.cat) tags.push(`<span class="tag">${escapeHtml(it.cat)}</span>`);
+    tags.push(it.status === "confirmed"
+      ? '<span class="tag ok">確認済み</span>'
+      : '<span class="tag">未確認・続報待ち</span>');
+    if (it.date) tags.push(`<span class="tag">${it.date}</span>`);
+    return `<details class="nitem" id="nitem-${it.index}" data-index="${it.index}"${newsOpen.has(it.index) ? " open" : ""}>` +
+      `<summary><h2 class="ntitle">${it.index + 1}. ${inline(escapeHtml(it.title))}</h2>` +
+      `<div class="ntags">${tags.join("")}</div></summary>` +
+      `<div class="nitem-body">${renderMarkdown(it.body)}</div></details>`;
+  }
+
+  function setAllNews(open) {
+    newsOpen = open ? new Set(news.items.map(i => i.index)) : new Set();
+    for (const d of document.querySelectorAll("details.nitem")) d.open = open;
+  }
+
+  // 目次から移動する。縮小されている項目は、展開してから移動する
+  function jumpToNews(index) {
+    const d = document.getElementById(`nitem-${index}`);
+    if (!d) return;
+    d.open = true;
+    d.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function renderNews() {
+    const viewBtn = (v, label) =>
+      `<button data-view="${v}"${newsView === v ? ' class="on"' : ""}>${label}</button>`;
+    const isCard = newsView === "card";
+    const toggle = `<div class="qnav">${viewBtn("card", "記事")}${viewBtn("raw", "原文")}` +
+      (isCard ? `<button id="news-open">すべて展開</button><button id="news-close">すべて縮小</button>` +
+                `<span class="count">${news.items.length} 件</span>` : "") +
+      `</div>`;
+    if (!isCard) {
+      $("#content").innerHTML = toggle + renderMarkdown(news.md);
+    } else {
+      const toc = news.items.map(it =>
+        `<li><a href="#nitem-${it.index}" data-index="${it.index}">` +
+        (it.sev ? `<span class="dot sev-${SEV_CLASS[it.sev]}"></span>` : "") +
+        `${escapeHtml(it.title)}</a></li>`).join("");
+      $("#content").innerHTML = toggle + `<div class="narticle"><div class="nmain">` +
+        (news.head.trim() ? renderMarkdown(news.head) : "") +
+        news.items.map(newsItemHtml).join("") +
+        (news.tail.trim() ? renderMarkdown(news.tail) : "") +
+        `</div><nav class="ntoc"><div class="ntoc-title">目次</div><ol>${toc}</ol></nav></div>`;
+      $("#news-open").addEventListener("click", () => setAllNews(true));
+      $("#news-close").addEventListener("click", () => setAllNews(false));
+      for (const a of document.querySelectorAll(".ntoc a")) {
+        a.addEventListener("click", (e) => { e.preventDefault(); jumpToNews(Number(a.dataset.index)); });
+      }
+      for (const d of document.querySelectorAll("details.nitem")) {
+        d.addEventListener("toggle", () => {
+          const i = Number(d.dataset.index);
+          if (d.open) newsOpen.add(i); else newsOpen.delete(i);
+        });
+      }
+    }
+    for (const b of document.querySelectorAll("#content .qnav button[data-view]")) {
+      b.addEventListener("click", () => { newsView = b.dataset.view; renderNews(); });
+    }
+  }
+
+  // 成果物の表示。IT・セキュリティニュースは記事風の表示にする
+  function showNote(path, md) {
+    $("#view").classList.toggle("wide", isNewsPath(path));
+    if (!isNewsPath(path)) { $("#content").innerHTML = renderMarkdown(md); return; }
+    news = parseNews(md);
+    // 最初は、すべての項目を縮小しておく
+    newsOpen = new Set();
+    renderNews();
+  }
+
   // ---- 表示 ----
   async function openNote(path) {
     currentPath = path;
@@ -444,7 +603,7 @@
     const content = $("#content");
     try {
       const data = await getJson(`/api/note?path=${encodeURIComponent(path)}`);
-      content.innerHTML = renderMarkdown(data.content);
+      showNote(path, data.content);
     } catch (e) {
       content.innerHTML = `<p class="muted">読み込みに失敗しました: ${escapeHtml(e.message)}</p>`;
     }
@@ -568,6 +727,7 @@
 
   function setMode(next) {
     mode = next;
+    $("#view").classList.remove("wide");
     if (isTool(next)) lastTool = next;
     $("#tab-notes").classList.toggle("active", next === "notes");
     $("#tab-tools").classList.toggle("active", isTool(next));
