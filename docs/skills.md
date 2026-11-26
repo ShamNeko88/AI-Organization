@@ -65,6 +65,38 @@ research-collector で収集し、research-checker で出典・日付・整合�
 - 現在は暫定リスト。URLの到達確認のみ済みで、内容の確認と確定は利用者が行う。
 - 確定したら SKILL.md の見出しと注意書きを更新する。
 
+## release-notes
+
+設定ファイルに登録したサービスの最新のリリースノートを、公式ページから集めてまとめる。
+既定のサービスは Claude、ChatGPT、Gemini（アプリ・製品の更新。API・開発者向けは対象外）。
+research-collector で収集し、research-checker で日付・出典・内容を裏取りする。
+手動で呼んだときだけ動く。定期実行はしない。
+
+使い方：/release-notes [期間] [サービス名]
+
+- 既定の期間：前回の成果物以降（前回がなければ直近2週間）
+- 既定のサービス：設定で enabled が true のすべて。サービス名を指定すると絞り込める（例：Claude,Gemini）
+- 項目数の上限：1サービスあたり10件（仮）。引数で変更できる
+
+設定ファイル：config/release-notes.json（Git管理対象）
+
+- services の各サービスに、name、enabled、sources（label と url）を書く。
+- サービスを増やすときは、services に書き足す。使わないサービスは、enabled を false にする。
+- 情報源のURLは、実在とアクセスを確認したものだけを書く。source_list_status は「暫定」。
+
+出力
+
+- outputs/research/yyyymmdd_release-notes/topic_summary.md
+- サービスごとにまとめ、見出し一覧、結論、使用したエージェント、根拠、参考サイトを載せる
+- 過去の outputs/research/*_release-notes/ を確認し、掲載済みの項目は重複して載せない
+
+取得についての注意
+
+- 1つの情報源につき、取得は原則1回。連続・並列の取得はしない。
+- 取得できなかった情報源は「更新なし」と扱わず、取得状況に書く。
+- 公式サイトの利用規約に、自動での取得を禁じる記載があるサービスがある（Claude、OpenAI。公開ページの閲覧への適用は未確認）。呼んだときだけ、必要最小限の回数で取得する。
+- Gemini は、地域・言語で掲載内容が異なる。設定は US・英語版にしている。
+
 ## convert-post
 
 Markdown のファイルを、貼り付け先（WordPress の Cocoon、Confluence など）に合わせた装飾済みの形式に変換する。
