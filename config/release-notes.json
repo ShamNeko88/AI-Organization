@@ -30,6 +30,26 @@
           "url": "https://gemini.google/us/release-notes/?hl=en"
         }
       ]
+    },
+    {
+      "name": "Snowflake",
+      "enabled": true,
+      "sources": [
+        {
+          "label": "Snowflake サーバーのリリースノートと機能更新",
+          "url": "https://docs.snowflake.com/en/release-notes/new-features"
+        }
+      ]
+    },
+    {
+      "name": "dbt",
+      "enabled": true,
+      "sources": [
+        {
+          "label": "dbt リリースノート",
+          "url": "https://docs.getdbt.com/docs/dbt-versions/release-notes"
+        }
+      ]
     }
   ]
 }
