@@ -524,7 +524,7 @@
 
   // ---- リリースノート（記事風の表示） ----
   // 「## サービス名」の下の「### 項目」を、1項目として読み取る
-  const isReleasePath = (p) => /_release-notes\/topic_summary\.md$/.test(p);
+  const isReleasePath = (p) => /_release-notes[^/]*\/topic_summary\.md$/.test(p);
 
   function parseRelease(md) {
     const lines = md.replace(/\r\n/g, "\n").split("\n");
