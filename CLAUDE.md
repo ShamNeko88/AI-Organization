@@ -28,7 +28,7 @@
 ## 5. 成果物について
 - 成果物はoutputs/カテゴリ/yyyymmdd_topic/topic_summary.mdの形で出力する。
   - カテゴリ:議論系はdiscussion、調査系はresearch、変換系はconvert
-  - convertは例外で、topic_summary.md ではなく、変換後のファイルと貼り付け手順のメモ（paste_guide.md）を出力する。
+  - convertは例外で、topic_summary.md ではなく、変換後のファイルだけを出力する。
 - 結論、使用したエージェント、根拠、参考サイトなどを載せる（convertを除く）
 - 調査系の topic_summary.md は、結論の直前に「## 見出し一覧」を置く。
   - 各項目を1行タイトルの通し番号付きリストで書く（例:「1. 項目名」）。

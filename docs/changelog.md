@@ -6,9 +6,9 @@ AI組織の役割、判断基準、運用方法を変更した際は、変更内
 
 Markdown の変換スキル（convert-post）の追加
 
-- 内容：Markdown を、貼り付け先（WordPress の Cocoon、Confluence など）に合わせた装飾済みの形式へ変換する /convert-post を追加した。変換先は実行時に選ぶ。変換先ごとのルールは、.claude/skills/convert-post/targets/ に置く（現在は cocoon と confluence）。変換結果は outputs/convert/yyyymmdd_topic/ に、変換後のファイルと貼り付け手順のメモ（paste_guide.md）として保存する。CLAUDE.md の成果物ルールに、カテゴリ convert（topic_summary.md の例外）を追加した。docs/skills.md と README を更新した。
+- 内容：Markdown を、貼り付け先（WordPress の Cocoon、Confluence など）に合わせた装飾済みの形式へ変換する /convert-post を追加した。変換先は実行時に選ぶ。変換先ごとのルールは、.claude/skills/convert-post/targets/ に置く（現在は cocoon と confluence）。変換結果は outputs/convert/yyyymmdd_topic/ に、変換後のファイルだけを保存する。CLAUDE.md の成果物ルールに、カテゴリ convert（topic_summary.md の例外）を追加した。docs/skills.md と README を更新した。
 - 理由：調査や議論の成果物を、社内のWiki（Confluence）やブログ（Cocoon）にそのまま貼れる形で、見栄え良く使えるようにするため。貼り付け先ごとに記法が違うため、変換先を分けた。
-- 補足：変換先のルールは、research-collector で調べ、research-checker で裏取りした確認済みの記法だけで作った（状態は「暫定」）。実際に貼って表示を確認するまで「検証済み」にしない。Confluence は、貼り付けだけでは再現できない装飾（パネル、展開、ステータス、目次など）が多く、手動の挿入が必要になる。依存関係の追加はない。
+- 補足：変換先のルールは、research-collector で調べ、research-checker で裏取りした確認済みの記法だけで作った（状態は「暫定」）。実際に貼って表示を確認するまで「検証済み」にしない。貼り付けたあとに手作業が必要な装飾は使わない方針にした。Confluence は、パネルや展開などを使わず、引用・太字・区切り線・絵文字で装飾する。Cocoon は、アイコンの登録が必要な吹き出しを使わない。依存関係の追加はない。
 
 research-it-news の調整（ビューアでの表示に合わせる）
 

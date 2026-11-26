@@ -14,18 +14,17 @@ Cocoon のバージョンごとの差は、未確認。
 1. 推奨: ブロックエディタで「カスタムHTML」ブロックを追加し、post_cocoon.html の中身を貼り付ける。
    - 本文にブロックが含まれていると、WordPress は改行を p / br に自動変換しない（WordPress 本体のソースで確認済み）。
 2. クラシックエディタ（テキストタブ）に貼る場合は、改行が p / br に変換される。1要素1行にしてあるのは、このため。
-3. 【差し替え:…】の目印がある箇所（画像のURL、吹き出しのアイコン、ボタンのリンク先）を、実際の値に直す。
-4. 元のMarkdownの見出し（# の1行目）は、投稿のタイトル欄に入れる。post_cocoon.html には含めない。
+3. 元のMarkdownの見出し（# の1行目）は、投稿のタイトル欄に入れる。post_cocoon.html には含めない。
 
 ## 4. 変換表
-- 見出し: `##` → `<h2>`、`###` → `<h3>`、`####` → `<h4>`（`#` はタイトルとして扱う。3の4を参照）。見出し専用の装飾 class は確認できていないので、付けない。
+- 見出し: `##` → `<h2>`、`###` → `<h3>`、`####` → `<h4>`（`#` はタイトルとして扱う。3の3を参照）。見出し専用の装飾 class は確認できていないので、付けない。
 - 段落: `<p>…</p>`
 - 太字: `<strong>…</strong>`、斜体: `<em>…</em>`
 - 取り消し線: `<span class="strike">…</span>`
 - インラインコード: `<code>…</code>`
 - 箇条書き: `<ul><li>…</li></ul>`、番号付き: `<ol><li>…</li></ol>`（1行に収める）
 - リンク: `<a href="URL">文字</a>`
-- 画像: `<img src="【差し替え:画像URL（元の記載: 元のパス）】" alt="説明">`。WordPress のメディアにアップロードしたURLに差し替える。
+- 画像: `<img src="元の記載" alt="説明">`。元の記載が自分のパスの場合、WordPress では表示されない。元に画像がある場合は、完了報告で「画像は別途アップロードが必要」と伝える。
 - コードブロック: `<pre><code>…</code></pre>`。中の `<` `>` `&` は `&lt;` `&gt;` `&amp;` にする。この要素だけは、コード内の改行を保つ。
 - 引用: `<blockquote><p>…</p></blockquote>`
 - 区切り線: `<hr>`
@@ -82,31 +81,17 @@ Cocoon のバージョンごとの差は、未確認。
 - 色の class は、確認できていないので付けない。
 
 ### 5-6. ボタン
-リンク先を示すときに使う。
-`<div class="btn-wrap btn-wrap-red btn-wrap-l"><a href="【差し替え:リンク先URL】">文言</a></div>`
+元の文章に、リンク先へ誘導するリンク（「詳しくはこちら」など）があるときに使う。リンク先は、元のURLのままにする。
+`<div class="btn-wrap btn-wrap-red btn-wrap-l"><a href="元のURL">文言</a></div>`
 - 色: red / pink / purple / blue / green / yellow / orange / brown / grey / black / white
 - サイズ: `btn-wrap-m`、`btn-wrap-l`（s は CSS にない）
 
-### 5-7. 吹き出し
-会話形式の文章や、一言コメントにだけ使う。
-```
-<div class="speech-wrap sbs-stn sbp-l sbis-cn cf"><div class="speech-person"><figure class="speech-icon"><img src="【差し替え:アイコン画像URL】" alt="名前" class="speech-icon-image" width="92" height="92"></figure><div class="speech-name">名前</div></div><div class="speech-balloon"><p>本文</p></div></div>
-```
-- sbs-（形）: stn（標準）、flat、line、think
-- sbp-（位置）: l（左）、r（右）
-- sbis-（アイコンの形）: sn、sb、cn、cb
-- `sb-id-{ID}` は、管理画面で登録した吹き出しの ID。手書きでは付けない。アイコン画像のURLと名前は、自分で入れる。
-- アイコンの画像URLが分からない場合は、使わない。
-
-## 6. 手動の作業が必要なもの
-次の目印は、貼り付け後に実際の値へ直す。目印は paste_guide.md に一覧で書く。
-- 【差し替え:画像URL…】: WordPress のメディアにアップロードして、URLに差し替える。
-- 【差し替え:アイコン画像URL】: 吹き出しのアイコン画像のURL。
-- 【差し替え:リンク先URL】: ボタンのリンク先。
+## 6. 使わない装飾（手作業が必要なため）
+- 吹き出し: アイコン画像の登録（URL）が必要なため、使わない。
+- 画像: 本文にあっても、アップロードは手作業になる（4を参照）。
 
 ## 7. 制約・注意
 - 見出し、表、アイコンリスト（iconlist-box）は、専用の装飾 class の値が確認できていないので使わない。
-- 吹き出しの短縮コード（ショートコード）は、確認した範囲では見つからなかった。
 - 目次のショートコード（[toc]）は、確認していないので使わない。目次は、Cocoon の設定で自動表示する。
 - Cocoon の最新版でない場合、一部の class が存在しない可能性がある。
 
@@ -114,7 +99,6 @@ Cocoon のバージョンごとの差は、未確認。
 出典（Cocoon 公式リポジトリ https://github.com/xserver-inc/cocoon の master、2026-11-26 に確認）。以下は、https://raw.githubusercontent.com/xserver-inc/cocoon/master/ からの相対パス:
 - lib/admin-tinymce-qtag.php（クイックタグ。ボックス、文字装飾、白抜きボックス）
 - style.css（各 class の定義）
-- lib/page-speech-balloon/speech-balloon-func.php（吹き出し）
 - blocks/src/block/toggle-box/save.js（トグル）
 - blocks/src/block-universal/caption-box/save.js、label-box、tab-caption-box（見出し付きボックス）
 - blocks/src/helpers.js、style.css の btn 系（ボタン）
