@@ -4,6 +4,12 @@ AI組織の役割、判断基準、運用方法を変更した際は、変更内
 
 ## 2026-11-26
 
+リリースノート収集スキル（release-notes）の追加
+
+- 内容：設定ファイル（config/release-notes.json）に登録したサービスの、最新のリリースノートを公式ページから集める /release-notes を追加した。既定のサービスは Claude、ChatGPT、Gemini（アプリ・製品の更新）。期間の既定値は「前回の成果物以降」。収集は research-collector、裏取りは research-checker で行い、outputs/research/yyyymmdd_release-notes/topic_summary.md に保存する。docs/skills.md と README を更新した。
+- 理由：複数のAIサービスの更新を、サイトを巡回せずにまとめて把握するため。サービスを増やすときは、設定ファイルに書き足すだけで済むようにした。
+- 補足：情報源のURLは、実在と到達（HTTP 200）、robots.txt を確認したもので、状態は「暫定」。Claude と OpenAI の利用規約には自動取得を禁じる記載があるため（公開ページの閲覧への適用は未確認）、呼んだときだけ、1情報源につき原則1回の取得にしている。Gemini は地域・言語で掲載内容が異なるため、US・英語版を使う。API・開発者向けのリリースノートは対象外。依存関係の追加はない。
+
 Markdown の変換スキル（convert-post）の追加
 
 - 内容：Markdown を、貼り付け先（WordPress の Cocoon、Confluence など）に合わせた装飾済みの形式へ変換する /convert-post を追加した。変換先は実行時に選ぶ。変換先ごとのルールは、.claude/skills/convert-post/targets/ に置く（現在は cocoon と confluence）。変換結果は outputs/convert/yyyymmdd_topic/ に、変換後のファイルだけを保存する。CLAUDE.md の成果物ルールに、カテゴリ convert（topic_summary.md の例外）を追加した。docs/skills.md と README を更新した。
