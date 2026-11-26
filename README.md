@@ -18,6 +18,7 @@ Macで初回に動かない場合は、chmod +x start-claude.command を実行�
 
 - /multi-perspective：複数の視点から課題を分析する
 - /research-it-news：IT・セキュリティニュースを集めてまとめる（期間・テーマを指定可）
+- /convert-post：Markdownを、貼り付け先（Cocoon、Confluenceなど）に合わせた装飾済みの形式に変換する
 - /mentor：メンターとして相談に乗ってもらう（「メンター終了」で解除）
 - /mentor-note：相談内容をノートに保存する
 - /setup-ai-team：AI組織の構築・改善を支援する
@@ -41,6 +42,7 @@ start-viewer.bat（Windows）または start-viewer.command（Mac）をダブル
 - multi-perspective：議論系3エージェントの意見を比較して結論を出す
 - setup-ai-team：AI組織の構築・改善を支援する
 - research-it-news：IT・セキュリティニュースの収集・裏取り・要約
+- convert-post：Markdownを貼り付け先に合わせた装飾済みの形式へ変換する（変換先は実行時に選ぶ）
 - mentor：呼んだときだけメンターとして応答する
 - mentor-note：学習ノートを保存する
 - mentor-quiz：ノートから問題を作り出題する

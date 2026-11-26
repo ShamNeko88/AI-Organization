@@ -65,6 +65,29 @@ research-collector で収集し、research-checker で出典・日付・整合�
 - 現在は暫定リスト。URLの到達確認のみ済みで、内容の確認と確定は利用者が行う。
 - 確定したら SKILL.md の見出しと注意書きを更新する。
 
+## convert-post
+
+Markdown のファイルを、貼り付け先（WordPress の Cocoon、Confluence など）に合わせた装飾済みの形式に変換する。
+変換先は実行時に選ぶ（引数で指定、または一覧から選択）。エージェントは使わない。
+
+使い方：/convert-post [変換先] [元のmdファイルのパス]
+
+- 元のファイルは、任意のmdファイルでよい。
+- 変換するのは見た目の装飾だけで、文章の内容は変えない（元にない情報は足さない）。
+- 変換先ごとのルールは、.claude/skills/convert-post/targets/ にファイルとして置く。変換先を増やすときは、ここにファイルを足す。
+- 貼り付けるだけで使える装飾だけを使う。貼り付けたあとに手作業が必要な装飾は使わない。
+- 現在の変換先：cocoon（HTML）、confluence（Markdown + 絵文字）
+
+出力
+
+- outputs/convert/yyyymmdd_topic/ に、変換後のファイル（post_cocoon.html など）だけを保存する。
+- 貼り付け方は、完了時の報告で伝える（ルールの「貼り付け方」に書いてある）。
+
+変換先ルールの状態
+
+- 変換先ルールは「暫定」。公式のソースやドキュメントで確認できた記法だけを使っているが、実際に貼って表示を確認するまで「検証済み」にしない。
+- Confluence は、パネルや展開など、貼り付けでは作れない装飾は使わず、引用・太字・区切り線・絵文字で装飾する。
+
 ## mentor 系スキル
 
 /mentor、/mentor-note、/mentor-quiz、/mentor-question、/mentor-review、/mentor-organizer。
