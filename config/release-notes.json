@@ -1,0 +1,35 @@
+{
+  "source_list_status": "暫定",
+  "services": [
+    {
+      "name": "Claude",
+      "enabled": true,
+      "sources": [
+        {
+          "label": "Claude リリースノート（アプリ・製品）",
+          "url": "https://support.claude.com/en/articles/12138966-release-notes"
+        }
+      ]
+    },
+    {
+      "name": "ChatGPT",
+      "enabled": true,
+      "sources": [
+        {
+          "label": "ChatGPT リリースノート",
+          "url": "https://help.openai.com/en/articles/6825453-chatgpt-release-notes"
+        }
+      ]
+    },
+    {
+      "name": "Gemini",
+      "enabled": true,
+      "sources": [
+        {
+          "label": "Gemini アプリ リリースノート（US・英語版）",
+          "url": "https://gemini.google/us/release-notes/?hl=en"
+        }
+      ]
+    }
+  ]
+}
