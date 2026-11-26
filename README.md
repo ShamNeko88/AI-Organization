@@ -44,6 +44,7 @@ start-viewer.bat（Windows）または start-viewer.command（Mac）をダブル
 - mentor：呼んだときだけメンターとして応答する
 - mentor-note：学習ノートを保存する
 - mentor-quiz：ノートから問題を作り出題する
+- mentor-question：ノートから一問一答の問題集を作る（ビューアで解く）
 - mentor-review：期間を指定してノートを振り返る
 - mentor-organizer：「その他」のノートを整理する
 

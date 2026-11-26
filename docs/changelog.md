@@ -4,6 +4,13 @@ AI組織の役割、判断基準、運用方法を変更した際は、変更内
 
 ## 2026-11-26
 
+一問一答の問題集（mentor-question）の追加
+
+- 内容：ノートから一問一答の問題集を作る /mentor-question を追加した。ビューアに「一問一答」タブを追加し、1問ずつ解けるようにした。
+  問題集は outputs/mentor/quiz/questions/ に保存する。docs/mentor.md、docs/viewer.md、docs/skills.md、README を更新した。
+- 理由：対話式の出題だけでなく、ブラウザで気軽に繰り返し解ける形式が欲しいため。
+- 補足：既存の /mentor-quiz は変更していない。正誤の記録は保存しない。依存関係の追加はない。
+
 ローカル閲覧ビューアの追加
 
 - 内容：outputs/ の成果物（Markdown）と logs/ の作業ログをブラウザで閲覧するビューアを追加した（apps/viewer/）。
