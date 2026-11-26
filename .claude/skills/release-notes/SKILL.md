@@ -95,6 +95,7 @@ outputs/research/yyyymmdd_release-notes/topic_summary.md に保存する。
 ### 1. 項目名
 - 日付: yyyy-mm-dd
 - 内容: 
+- 確認: 確認済み / 一部確認 / 未確認（一部確認・未確認は、確認できていない点を続けて書く）
 - 出典: URL
 
 ## ChatGPT
