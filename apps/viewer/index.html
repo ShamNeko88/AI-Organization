@@ -137,6 +137,10 @@
   .ntoc li { margin: 4px 0; line-height: 1.5; }
   #view .ntoc a { color: var(--text); text-decoration: none; }
   #view .ntoc a:hover { color: var(--accent); }
+  .ntoc-group { font-weight: bold; margin: 10px 0 2px; }
+  .ntoc-h3 { padding-left: 14px; }
+  .ntoc-h2, .ntoc-h3 { margin: 4px 0; line-height: 1.5; }
+  #view .nmain h2, #view .nmain h3 { scroll-margin-top: 12px; }
   #news-open { margin-left: 16px; }
   .nitem { margin-top: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border); scroll-margin-top: 12px; }
   .nitem > summary { cursor: pointer; list-style: none; }
@@ -518,12 +522,70 @@
     return { head: head.join("\n"), tail: tail.join("\n"), items, md };
   }
 
+  // ---- リリースノート（記事風の表示） ----
+  // 「## サービス名」の下の「### 項目」を、1項目として読み取る
+  const isReleasePath = (p) => /_release-notes\/topic_summary\.md$/.test(p);
+
+  function parseRelease(md) {
+    const lines = md.replace(/\r\n/g, "\n").split("\n");
+    // ### を持つ ## を、サービスの節とみなす
+    const svcSet = new Set();
+    let h2 = "";
+    for (const l of lines) {
+      const m = l.match(/^##\s+(.*)$/);
+      if (m) h2 = m[1].trim();
+      else if (/^###\s/.test(l) && h2) svcSet.add(h2);
+    }
+    const head = [], tail = [], items = [];
+    let area = "head", svc = "", cur = null, skip = false;
+    for (const line of lines) {
+      const m2 = line.match(/^##\s+(.*)$/);
+      if (m2) {
+        cur = null;
+        const name = m2[1].trim();
+        skip = /^見出し一覧/.test(name);
+        if (svcSet.has(name)) { area = "items"; svc = name; continue; }
+        if (area === "items") area = "tail";
+        if (skip) continue;
+      }
+      if (skip) continue;
+      const m3 = area === "items" && line.match(/^###\s+(.*)$/);
+      if (m3) {
+        cur = { title: m3[1].replace(/^\d+\.\s*/, ""), cat: svc, sev: "", lines: [], index: items.length };
+        items.push(cur);
+      } else if (area === "items") {
+        if (cur) cur.lines.push(line); else if (line.trim()) head.push(line);
+      } else {
+        (area === "head" ? head : tail).push(line);
+      }
+    }
+    for (const it of items) {
+      const body = [];
+      it.date = "";
+      for (const l of it.lines) {
+        const d = l.match(/^-\s*日付\s*[:：]\s*(.+?)\s*$/);
+        if (d && /\d{4}-\d{2}-\d{2}/.test(d[1])) { it.date = d[1].match(/\d{4}-\d{2}-\d{2}/)[0]; continue; }
+        const c = l.match(/^-\s*確認\s*[:：]\s*(.+?)\s*$/);
+        if (c) {
+          if (/^確認済み/.test(c[1])) it.statusHtml = '<span class="tag ok">確認済み</span>';
+          else if (/^一部確認/.test(c[1])) it.statusHtml = '<span class="tag">一部確認</span>';
+          else if (/^未確認/.test(c[1])) it.statusHtml = '<span class="tag">未確認</span>';
+        }
+        body.push(l);
+      }
+      if (it.statusHtml === undefined) it.statusHtml = "";
+      it.body = body.join("\n");
+    }
+    return { head: head.join("\n"), tail: tail.join("\n"), items, md };
+  }
+
   // 記事の1項目。見出しとタグは常に見え、本文は展開・縮小できる
   function newsItemHtml(it) {
     const tags = [];
     if (it.sev) tags.push(`<span class="tag sev-${SEV_CLASS[it.sev]}">重要度 ${it.sev}</span>`);
     if (it.cat) tags.push(`<span class="tag">${escapeHtml(it.cat)}</span>`);
-    tags.push(it.status === "confirmed"
+    if (it.statusHtml !== undefined) tags.push(it.statusHtml);
+    else tags.push(it.status === "confirmed"
       ? '<span class="tag ok">確認済み</span>'
       : '<span class="tag">未確認・続報待ち</span>');
     if (it.date) tags.push(`<span class="tag">${it.date}</span>`);
@@ -557,15 +619,30 @@
     if (!isCard) {
       $("#content").innerHTML = toggle + renderMarkdown(news.md);
     } else {
-      const toc = news.items.map(it =>
+      const tocItem = (it) =>
         `<li><a href="#nitem-${it.index}" data-index="${it.index}">` +
         (it.sev ? `<span class="dot sev-${SEV_CLASS[it.sev]}"></span>` : "") +
-        `${escapeHtml(it.title)}</a></li>`).join("");
+        `${escapeHtml(it.title)}</a></li>`;
+      let toc;
+      if (news.kind === "release") {
+        // サービスごとにまとめる。番号は、全体の通し番号に合わせる
+        toc = "";
+        for (let i = 0; i < news.items.length;) {
+          const svc = news.items[i].cat;
+          let j = i;
+          while (j < news.items.length && news.items[j].cat === svc) j++;
+          toc += `<div class="ntoc-group">${escapeHtml(svc)}</div><ol start="${i + 1}">` +
+            news.items.slice(i, j).map(tocItem).join("") + `</ol>`;
+          i = j;
+        }
+      } else {
+        toc = `<ol>${news.items.map(tocItem).join("")}</ol>`;
+      }
       $("#content").innerHTML = toggle + `<div class="narticle"><div class="nmain">` +
         (news.head.trim() ? renderMarkdown(news.head) : "") +
         news.items.map(newsItemHtml).join("") +
         (news.tail.trim() ? renderMarkdown(news.tail) : "") +
-        `</div><nav class="ntoc"><div class="ntoc-title">目次</div><ol>${toc}</ol></nav></div>`;
+        `</div><nav class="ntoc"><div class="ntoc-title">目次</div>${toc}</nav></div>`;
       $("#news-open").addEventListener("click", () => setAllNews(true));
       $("#news-close").addEventListener("click", () => setAllNews(false));
       for (const a of document.querySelectorAll(".ntoc a")) {
@@ -585,9 +662,11 @@
 
   // 成果物の表示。IT・セキュリティニュースは記事風の表示にする
   function showNote(path, md) {
-    $("#view").classList.toggle("wide", isNewsPath(path));
-    if (!isNewsPath(path)) { $("#content").innerHTML = renderMarkdown(md); return; }
-    news = parseNews(md);
+    const kind = isNewsPath(path) ? "news" : isReleasePath(path) ? "release" : "";
+    $("#view").classList.toggle("wide", kind !== "");
+    if (!kind) { $("#content").innerHTML = renderMarkdown(md); return; }
+    news = kind === "release" ? parseRelease(md) : parseNews(md);
+    news.kind = kind;
     // 最初は、すべての項目を縮小しておく
     newsOpen = new Set();
     renderNews();
@@ -615,11 +694,36 @@
     renderList();
     try {
       const data = await getJson(`/api/doc?path=${encodeURIComponent(path)}`);
-      $("#content").innerHTML = renderMarkdown(data.content);
+      showDocWithToc(data.content);
     } catch (e) {
+      $("#view").classList.remove("wide");
       $("#content").innerHTML = `<p class="muted">読み込みに失敗しました: ${escapeHtml(e.message)}</p>`;
     }
     $("#view").scrollTop = 0;
+  }
+
+  // ヘルプ：見出し（##、###）から目次を作り、右側に出す。見出しが少ないときは付けない
+  function showDocWithToc(md) {
+    const box = document.createElement("div");
+    box.innerHTML = renderMarkdown(md);
+    const hs = [...box.querySelectorAll("h2, h3")];
+    if (hs.length < 3) {
+      $("#view").classList.remove("wide");
+      $("#content").innerHTML = box.innerHTML;
+      return;
+    }
+    hs.forEach((h, i) => { h.id = `dh-${i}`; });
+    const toc = hs.map((h, i) =>
+      `<div class="ntoc-${h.tagName.toLowerCase()}"><a href="#dh-${i}" data-id="dh-${i}">${escapeHtml(h.textContent)}</a></div>`).join("");
+    $("#view").classList.add("wide");
+    $("#content").innerHTML = `<div class="narticle"><div class="nmain">${box.innerHTML}</div>` +
+      `<nav class="ntoc"><div class="ntoc-title">目次</div>${toc}</nav></div>`;
+    for (const a of document.querySelectorAll(".ntoc a")) {
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        document.getElementById(a.dataset.id).scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
   }
 
   async function showWorklog() {
