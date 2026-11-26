@@ -588,8 +588,8 @@
     $("#view").classList.toggle("wide", isNewsPath(path));
     if (!isNewsPath(path)) { $("#content").innerHTML = renderMarkdown(md); return; }
     news = parseNews(md);
-    // 最初は、確認済みを展開し、未確認・続報待ちを縮小する
-    newsOpen = new Set(news.items.filter(i => i.status === "confirmed").map(i => i.index));
+    // 最初は、すべての項目を縮小しておく
+    newsOpen = new Set();
     renderNews();
   }
 
