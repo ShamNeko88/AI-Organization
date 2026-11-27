@@ -663,8 +663,8 @@
   // 成果物の表示。IT・セキュリティニュースは記事風の表示にする
   function showNote(path, md) {
     const kind = isNewsPath(path) ? "news" : isReleasePath(path) ? "release" : "";
-    $("#view").classList.toggle("wide", kind !== "");
-    if (!kind) { $("#content").innerHTML = renderMarkdown(md); return; }
+    if (!kind) { showDocWithToc(md); return; }
+    $("#view").classList.add("wide");
     news = kind === "release" ? parseRelease(md) : parseNews(md);
     news.kind = kind;
     // 最初は、すべての項目を縮小しておく
